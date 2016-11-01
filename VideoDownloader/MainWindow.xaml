@@ -1,0 +1,23 @@
+﻿<Window x:Class="VideoDownloader.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VideoDownloader"
+        mc:Ignorable="d"
+        x:Name="mainWindow"
+        Title="Video Downloader" Height="350" Width="525">
+    <Grid>
+        <Label>Enter video id like watch?v=</Label>
+        <Label FontWeight="Bold" Margin="148,0,0,0">videoID</Label>
+        <TextBox Name="tbVideoID" Height="25" VerticalAlignment="Top" Margin="5,30,5,0" VerticalContentAlignment="Center"/>
+        <Button Name="btDownload" Height="25" VerticalAlignment="Top" Margin="5,60,5,0" Click="btDownload_Click">Download</Button>
+        <Button Name="btConvert" IsEnabled="false" Height="25" VerticalAlignment="Top" Margin="5,100,5,0" Click="btConvert_Click">Convert</Button>
+        <!--<ProgressBar Name="pbDownloadProgress" Height="25" VerticalAlignment="Top" Margin="5,140,5,0"></ProgressBar>-->
+
+        <Label Name="lbEnterPath" Height="25" VerticalAlignment="Top" Margin="5,180,5,0">Enter save path</Label>
+        <Label Name="lbSavePath" Height="30" VerticalAlignment="Top" Margin="5,210,5,0" Content="{Binding SavePath,ElementName=MainWindow}"/>
+        <Button Name="btSaveFile" Height="25" Width="100" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,250,0,0" Click="btSaveFile_Click">Save</Button>
+        <Button Name="btSaveSettings" Height="25" Width="100" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,250,5,0" Click="btSaveSettings_Click">Save Settings</Button>
+    </Grid>
+</Window>
