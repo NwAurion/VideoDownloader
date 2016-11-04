@@ -1,10 +1,12 @@
-﻿using MediaToolkit;
+﻿using IniParser;
+using IniParser.Model;
+using MediaToolkit;
 using MediaToolkit.Model;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Media;
 using VideoDownloader.Web;
 
 namespace VideoDownloader
@@ -14,21 +16,19 @@ namespace VideoDownloader
     /// </summary>
     public partial class MainWindow : Window
     {
-        //string videoID;
-        string fullFileName;
-        MediaFile inputFile;
-        MediaFile outputFile;
+        public IniData data;
+        public string settingsPath;
 
-        public string SavePath;
-        //public static readonly DependencyProperty SavePathProperty = DependencyProperty.Register("SavePath", typeof(String), typeof(ContentControl));
-        /*public String SavePath
+        public String _savePath;
+        public String SavePath
         {
-            get { return (String)GetValue(SavePathProperty); }
+            get { return _savePath; }
             set
             {
-                SetValue(SavePathProperty, value);
+                _savePath = value;
+                OnPropertyChanged("SavePath");
             }
-        }*/
+        }
 
         private BackgroundWorker backgroundWorker;
 
@@ -39,19 +39,25 @@ namespace VideoDownloader
             backgroundWorker.DoWork += backgroundWorker_DoWork;
             backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
 
-            ReadSettings();
-            // backgroundWorker.WorkerReportsProgress = true;
-            // backgroundWorker.ProgressChanged += BackgroundWorker_ProgressChanged;
+            settingsPath = Environment.CurrentDirectory + "\\VideoDownloader.cfg";
+            LoadSettings();
+
         }
 
-        private void ReadSettings()
+        private void LoadSettings()
         {
-            SavePath = Properties.Settings.Default.SavePath;
+            FileInfo sFI = new FileInfo(settingsPath);
+            if (sFI.Exists)
+            {
+                var parser = new FileIniDataParser();
+                data = parser.ReadFile(sFI.FullName);
+                SavePath = data["Path"]["SavePath"];
+            }
         }
 
         private void Download(string videoID)
         {
-            fullFileName = Downloader.SaveVideoToDisk(videoID, SavePath);
+            VideoFile.Name = Downloader.SaveVideoToDisk(videoID, SavePath);
         }
 
         private string ExtractVideoID(string text)
@@ -71,8 +77,7 @@ namespace VideoDownloader
             {
                 videoID = text;
             }
-            return videoID;
-            
+            return videoID;   
         }
 
         #region Backgroundworker
@@ -93,34 +98,30 @@ namespace VideoDownloader
         {
             // extract the videoID from the entered text.
             string videoID = ExtractVideoID(tbVideoID.Text);
-            string test = SavePath;
-            if (!String.IsNullOrWhiteSpace(SavePath))
+
+            if (!String.IsNullOrEmpty(tbVideoID.Text))
             {
+
                 if (!SavePath.EndsWith("/") && !SavePath.EndsWith("\\"))
                 {
                     SavePath += "\\";
                 }
+
                 backgroundWorker.RunWorkerAsync(videoID);
                 if (backgroundWorker.IsBusy)
                 {
+                    VideoFile.Path = SavePath;
                     btDownload.IsEnabled = false;
                     btConvert.IsEnabled = false;
-                    lbSavePath.BorderThickness = new Thickness(1);
-                    lbSavePath.BorderBrush = (Brush)new BrushConverter().ConvertFrom("#FFABADB3");
                 }
-            }
-            else
-            {
-                lbSavePath.BorderThickness = new Thickness(2);
-                lbSavePath.BorderBrush = Brushes.Red;
             }
         }
 
         private void btConvert_Click(object sender, RoutedEventArgs e)
         {
-            string file = SavePath + fullFileName;
-            inputFile = new MediaFile(file + ".mp4");
-            outputFile = new MediaFile(file + ".mp3");
+            string PathAndName = VideoFile.Path + VideoFile.Name;
+            MediaFile inputFile = new MediaFile(PathAndName+VideoFile.Extension);
+            MediaFile outputFile = new MediaFile(PathAndName + ".mp3");
 
             using (var engine = new Engine())
             {
@@ -128,7 +129,7 @@ namespace VideoDownloader
             }
         }
 
-        private void btSaveFile_Click(object sender, RoutedEventArgs e)
+        private void btSaveFolder_Click(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             DialogResult dr = System.Windows.Forms.DialogResult.OK;
@@ -136,14 +137,47 @@ namespace VideoDownloader
             {
                 SavePath = fbd.SelectedPath;
                 lbSavePath.Content = SavePath;
+                data["Path"]["SavePath"] = SavePath;
             }
         }
 
         private void btSaveSettings_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.SavePath = SavePath;
+            var parser = new FileIniDataParser();
+            FileInfo sfi = new FileInfo(settingsPath);
+            if (sfi.Exists)
+            {
+                parser.WriteFile(settingsPath, data);
+            }
+        }
+
+
+        private void btLoadFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.InitialDirectory = SavePath;
+            DialogResult result = dlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string name = dlg.FileName;
+                int startPos = 0;
+                int endPos = name.LastIndexOf("\\") + 1;
+                VideoFile.Path = name.Substring(startPos, endPos);
+
+                startPos = VideoFile.Path.Length;
+                endPos = name.LastIndexOf(".") - startPos;
+                VideoFile.Name = name.Substring(startPos, endPos);
+                VideoFile.Extension = name.Substring(name.LastIndexOf("."));
+                btConvert.IsEnabled = true;
+            }
         }
         #endregion
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }
