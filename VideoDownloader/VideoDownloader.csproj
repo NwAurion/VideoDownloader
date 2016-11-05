@@ -83,6 +83,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FileTypes.cs" />
+    <Compile Include="Web\Converter.cs" />
     <Compile Include="Web\Downloader.cs" />
     <Compile Include="Web\VideoFile.cs" />
     <Page Include="MainWindow.xaml">

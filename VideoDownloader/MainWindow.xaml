@@ -16,7 +16,8 @@
 
         <Label Name="lbSavePath" Height="30" VerticalAlignment="Top" Margin="5,210,5,0" Content="{Binding Path=Path, ElementName=VideoFile}"/>
         <Button Name="btSaveFolder" Height="25" Width="120" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5,250,0,0" Click="btSaveFolder_Click">Choose save folder</Button>
-        <Button Name="btLoadFile" Height="25" Width="100" VerticalAlignment="Top" Margin="5,250,0,0" Click="btLoadFile_Click ">Load File</Button>
+        <Button Name="btLoadFile" Height="25" Width="100" VerticalAlignment="Top" Margin="200,250,100,0" Click="btLoadFile_Click ">Load File</Button>
+        <ComboBox Name="cbChooseFileType" Width="70" VerticalAlignment="Top" Margin="150,250,280,0" Height="25"></ComboBox>
         <Button Name="btSaveSettings" Height="25" Width="100" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,250,5,0" Click="btSaveSettings_Click">Save Settings</Button>
     </Grid>
 </Window>

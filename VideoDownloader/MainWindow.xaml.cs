@@ -40,6 +40,9 @@ namespace VideoDownloader
             backgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
 
             settingsPath = Environment.CurrentDirectory + "\\VideoDownloader.cfg";
+
+          
+            cbChooseFileType.ItemsSource = FileTypes.GetFileTypes();
             LoadSettings();
 
         }
@@ -119,14 +122,7 @@ namespace VideoDownloader
 
         private void btConvert_Click(object sender, RoutedEventArgs e)
         {
-            string PathAndName = VideoFile.Path + VideoFile.Name;
-            MediaFile inputFile = new MediaFile(PathAndName+VideoFile.Extension);
-            MediaFile outputFile = new MediaFile(PathAndName + ".mp3");
-
-            using (var engine = new Engine())
-            {
-                engine.Convert(inputFile, outputFile);
-            }
+            Converter.DoConvert(cbChooseFileType.SelectedItem.ToString());
         }
 
         private void btSaveFolder_Click(object sender, RoutedEventArgs e)
