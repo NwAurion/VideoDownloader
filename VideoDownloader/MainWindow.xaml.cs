@@ -56,6 +56,11 @@ namespace VideoDownloader
                 data = parser.ReadFile(sFI.FullName);
                 SavePath = data["Path"]["SavePath"];
             }
+            else 
+            {
+                SavePath = Environment.CurrentDirectory+"\\Downloads\\";
+            }
+
         }
 
         private void Download(string videoID)
@@ -104,7 +109,12 @@ namespace VideoDownloader
 
             if (!String.IsNullOrEmpty(tbVideoID.Text))
             {
-
+                var dir = new DirectoryInfo(SavePath);
+                if (!dir.Exists)
+                {
+                    dir.Create();
+                }
+                     
                 if (!SavePath.EndsWith("/") && !SavePath.EndsWith("\\"))
                 {
                     SavePath += "\\";
@@ -133,6 +143,8 @@ namespace VideoDownloader
             {
                 SavePath = fbd.SelectedPath;
                 lbSavePath.Content = SavePath;
+                data = new IniData();
+                data.Sections.AddSection("Path");
                 data["Path"]["SavePath"] = SavePath;
             }
         }
